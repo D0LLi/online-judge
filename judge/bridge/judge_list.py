@@ -125,6 +125,29 @@ class JudgeList(object):
         return 0 <= priority < self.priorities
 
     def judge(self, id, problem, language, source, judge_id, priority):
+        """Judge a submission by dispatching it to an available judge.
+
+        This method checks if the submission with the given ID is already being
+        judged. If not, it identifies candidates from the list of judges who can
+        handle the specified problem and language. It then filters these
+        candidates to find those that are not currently working and are not
+        disabled. If a specific judge ID is provided, it logs whether that judge
+        is available. If there is only one available judge and the priority is
+        high enough, it may choose not to dispatch to that judge. If an
+        available judge is found, the submission is dispatched to the judge with
+        the least load. If the dispatch fails, it logs the error and attempts to
+        re-judge the submission. If no judges are available, the submission is
+        queued for later processing.
+
+        Args:
+            id (int): The unique identifier for the submission.
+            problem (str): The problem associated with the submission.
+            language (str): The programming language of the submission.
+            source (str): The source code of the submission.
+            judge_id (str): An optional identifier for a specific judge.
+            priority (int): The priority level of the submission.
+        """
+
         with self.lock:
             if id in self.submission_map or id in self.node_map:
                 # Already judging, don't queue again. This can happen during batch rejudges, rejudges should be
