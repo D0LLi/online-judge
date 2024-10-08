@@ -598,6 +598,27 @@ class LanguageTemplateAjax(View):
 
 class RandomProblem(ProblemList):
     def get(self, request, *args, **kwargs):
+        """Retrieve a random problem URL from the queryset.
+
+        This method processes the incoming request to set up the problem list.
+        If the request is made during a contest, it raises a 404 error. It then
+        retrieves a normal queryset of problems and checks the count. If there
+        are no problems available, it redirects to the problem list with any
+        existing query parameters. Otherwise, it selects a random problem from
+        the queryset and redirects to its absolute URL.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing metadata
+                and parameters.
+
+        Returns:
+            HttpResponse: A redirect response to either the problem list or a
+                randomly selected problem's URL.
+
+        Raises:
+            Http404: If the request is made during a contest.
+        """
+
         self.setup_problem_list(request)
         if self.in_contest:
             raise Http404()
